@@ -1,0 +1,18 @@
+{
+  "name": "Keystrokes",
+  "main": "./lib/keycount",
+  "version": "0.2.0",
+  "description": "Records keystrokes and timestamps in a .csv file in the specified file path",
+  "keywords": [],
+  "activationCommands": {
+    "atom-workspace": "keycount:toggle"
+  },
+  "repository": "https://github.com/lilyszhang/keystrokes",
+  "license": "",
+  "engines": {
+    "atom": ">=1.0.0 <2.0.0"
+  },
+  "dependencies": {
+    "atom-space-pen-views": "^2.0.3"
+  }
+}
