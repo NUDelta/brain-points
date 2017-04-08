@@ -7,6 +7,9 @@ class KeycountView extends View
     @div class: 'key-count-resolver', =>
       @div class: 'panel-heading padded', =>
         @div class: 'block', =>
+          @span class: 'keycount-menu', 'Key count '
+          @span class: 'badge badge-info keycount-menu', outlet: 'keystroke', ' 0'
+          @span class: 'badge badge-info keycount-menu', outlet: 'keys', ' 0'
           @button class: 'inline-block-tight reset', "Reset"
       @div outlet: 'keylist', class: 'panel-body padded'
 
@@ -20,8 +23,7 @@ class KeycountView extends View
   refresh: () ->
     c = @count
     history = @history
-    time = (Date.now() - @time)/1000
-    currtime=Date.now()
+    time = Date.now()
 
     @keystroke.html $$ ->
       @span class: 'keycount', " " + c
@@ -37,7 +39,7 @@ class KeycountView extends View
     file = editor?.buffer.file
     directory = file?.getParent()
     dirPath = directory?.path
-    fs.appendFile dirPath + '/keystrokes.csv', currtime + ',' + history[-1..] + '\n'
+    fs.appendFile dirPath + '/keystrokes.csv', time + ',' + history[-1..] + '\n'
 
   initialize: ->
     @count = 0
@@ -55,7 +57,7 @@ class KeycountView extends View
       @detach()
     else
       @attach()
-      @currtime = Date.now()
+      @time = Date.now()
 
   reset: ->
     @count = 0
