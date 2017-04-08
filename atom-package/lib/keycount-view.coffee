@@ -39,7 +39,7 @@ class KeycountView extends View
     file = editor?.buffer.file
     directory = file?.getParent()
     dirPath = directory?.path
-    fs.appendFile dirPath + '/keystrokes.csv', time + ',' + history[-1..] + '\n'
+    fs.appendFile dirPath + '/keystrokes.csv', Date.now() + ',' + history[-1..] + '\n'
 
   initialize: ->
     @count = 0
