@@ -24,6 +24,7 @@ class KeycountView extends View
     c = @count
     history = @history
     time = (Date.now() - @time)/1000
+    currtime=Date.now()
 
     @keystroke.html $$ ->
       @span class: 'keycount', " " + c
@@ -39,7 +40,7 @@ class KeycountView extends View
     file = editor?.buffer.file
     directory = file?.getParent()
     dirPath = directory?.path
-    fs.appendFile dirPath + '/keystrokes.csv', Date.now() + ',' + history[-1..] + '\n'
+    fs.appendFile dirPath + '/keystrokes.csv', currtime + ',' + history[-1..] + '\n'
 
   initialize: ->
     @count = 0
