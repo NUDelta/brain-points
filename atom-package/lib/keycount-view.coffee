@@ -58,7 +58,7 @@ class KeycountView extends View
       @detach()
     else
       @attach()
-      @time = Date.now()
+      @currtime = Date.now()
 
   reset: ->
     @count = 0
