@@ -7,9 +7,6 @@ class KeycountView extends View
     @div class: 'key-count-resolver', =>
       @div class: 'panel-heading padded', =>
         @div class: 'block', =>
-          @span class: 'keycount-menu', 'Key count '
-          @span class: 'badge badge-info keycount-menu', outlet: 'keystroke', ' 0'
-          @span class: 'badge badge-info keycount-menu', outlet: 'keys', ' 0'
           @button class: 'inline-block-tight reset', "Reset"
       @div outlet: 'keylist', class: 'panel-body padded'
 
