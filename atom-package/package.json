@@ -1,7 +1,7 @@
 {
   "name": "Keystrokes",
   "main": "./lib/keycount",
-  "version": "0.2.0",
+  "version": "1.0.0",
   "description": "Records keystrokes and timestamps in a .csv file in the specified file path",
   "keywords": [],
   "activationCommands": {

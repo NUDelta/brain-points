@@ -7,12 +7,9 @@ class KeycountView extends View
     @div class: 'key-count-resolver', =>
       @div class: 'panel-heading padded', =>
         @div class: 'block', =>
-          @span class: 'keycount-menu', 'Key count '
-          @span class: 'badge badge-info keycount-menu', outlet: 'keystroke', ' 0'
-          @span class: 'badge badge-info keycount-menu', outlet: 'keys', ' 0'
-          @button class: 'inline-block-tight reset', "Reset"
+          @span class: 'keycount-menu', 'Currently Recording Keystrokes'
+          @button class: 'inline-block-tight stop', "Stop Recording"
       @div outlet: 'keylist', class: 'panel-body padded'
-
 
   add: (keys) ->
     @count++
@@ -24,16 +21,6 @@ class KeycountView extends View
     c = @count
     history = @history
     time = Date.now()
-
-    @keystroke.html $$ ->
-      @span class: 'keycount', " " + c
-    @keys.html $$ ->
-      @span class: 'keycount', " " + (history[-1..] or '-')
-    @keylist.html $$ ->
-      @table class: 'table-condensed', =>
-        for key, i in history
-          @tr class: 'used', =>
-            @td class: 'source', (i + c - history.length + 1) + " " + key
     fs = require 'fs'
     editor = atom.workspace.getActivePaneItem()
     file = editor?.buffer.file
@@ -44,7 +31,7 @@ class KeycountView extends View
   initialize: ->
     @count = 0
     @history = []
-    @on 'click', '.reset', ({target}) => @reset()
+    @on 'click', '.stop', ({target}) => @detach()
 
   # Tear down any state and detach
   destroy: ->
