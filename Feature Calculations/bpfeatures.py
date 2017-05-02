@@ -108,7 +108,7 @@ def typingToRunningTime(path_to_file):
         minimum="never ran code"
     else:
         average=summation/count
-        
+
     return ["before running", "minimum: " + str(minimum), 
             "average: " + str(average), 
             "count: " + str(count)]
@@ -159,9 +159,37 @@ def numTimesRun(path_to_file):
             count= count + 1
     return count
 
+def numComments(path_to_file):
+    """Number of times code was run"""
+    keystrokes = csvToDataFrame(path_to_file)
+    count = 0
+    for i in range(keystrokes['Key'].count()):
+        Key = keystrokes['Key'][i]
+        if Key == "#":
+            count= count + 1
+    return count
 
-path = "Study 1/Participant 3/keystrokes3.csv"
+def lengthOfComments(path_to_file):
+    """Number of times code was run"""
+    keystrokes = csvToDataFrame(path_to_file)
+    total = 0
+    flag = False
 
-print typingToRunningTime(path)
-print numTimesRun(path)
-print runningToTypingTime(path)
+    for i in range(keystrokes['Key'].count()):
+        Key = keystrokes['Key'][i]
+        if Key == "#":
+            flag = True
+        if Key != "backspace" and flag == True:
+            total +=1
+        if Key == "enter":
+            flag == False
+
+    return total
+
+
+path = "Study1/Participant 6/keystrokes1.csv"
+
+# print typingToRunningTime(path)
+print numComments(path)
+print lengthOfComments(path)
+# print runningToTypingTime(path)
