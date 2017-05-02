@@ -83,4 +83,85 @@ def createBigCSV(path_to_directory):
             # else:
             #     labels.to_csv('bigFile.csv', index=False, header=True)
 
-createBigCSV("/Users/morganwalker/Desktop/Spring 2017/DTR/Study 1/")
+def typingToRunningTime(path_to_file):
+    """min time between typing and running"""
+    keystrokes = csvToDataFrame(path_to_file)
+    minimum = 1000
+    sumation = 0
+    count = 0
+    average=0
+
+    for i in range(keystrokes['Key'].count()-1):
+        firstKey = keystrokes['Key'][i]
+        secondKey = keystrokes['Key'][i+1]
+        firstTime = keystrokes['Timestamp'][i]
+        secondTime = keystrokes['Timestamp'][i+1]
+        tempTimeDiff = timeDifference(secondTime,firstTime)
+        
+        if secondKey == "cmd-i":
+            if tempTimeDiff<minimum:
+                minimum = tempTimeDiff
+            sumation=sumation+tempTimeDiff
+            count= count + 1
+    
+    if(count == 0):
+        minimum="never ran code"
+    else:
+        average=summation/count
+        
+    return ["before running", "minimum: " + str(minimum), 
+            "average: " + str(average), 
+            "count: " + str(count)]
+
+
+def runningToTypingTime(path_to_file):
+    """min time between running and typing"""
+    keystrokes = csvToDataFrame(path_to_file)
+    minimum = "N/A"
+    sumation = 0
+    count = 0
+    average = 0
+
+    for i in range(keystrokes['Key'].count()-1):
+        firstKey = keystrokes['Key'][i]
+        secondKey = keystrokes['Key'][i+1]
+        firstTime = keystrokes['Timestamp'][i]
+        secondTime = keystrokes['Timestamp'][i+1]
+        tempTimeDiff = timeDifference(secondTime,firstTime)
+        
+        if firstKey == "cmd-i":
+            if tempTimeDiff<minimum:
+                minimum = tempTimeDiff
+            sumation=sumation+tempTimeDiff
+            count= count + 1
+
+    if(count!= 0):
+        average = sumation/count
+
+    #last key is cmd-i
+    if secondKey == "cmd-i":
+        count= count + 1
+
+    if(count == 0):
+        return"never ran code"
+
+    return ["after running", "minimum: " + str(minimum), 
+            "average: " + str(average),
+            "count: " + str(count)]
+
+def numTimesRun(path_to_file):
+    """Number of times code was run"""
+    keystrokes = csvToDataFrame(path_to_file)
+    count = 0
+    for i in range(keystrokes['Key'].count()):
+        Key = keystrokes['Key'][i]
+        if Key == "cmd-i":
+            count= count + 1
+    return count
+
+
+path = "Study 1/Participant 3/keystrokes3.csv"
+
+print typingToRunningTime(path)
+print numTimesRun(path)
+print runningToTypingTime(path)
