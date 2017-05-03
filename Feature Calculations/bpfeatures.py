@@ -144,6 +144,24 @@ def maxPausePreDeletion(path_to_file):
                 maxPause = timeDiff
     return maxPause/60
 
+def qualCode(path_to_file):
+    """Finds the number of times the participant used Google"""
+    notes = csvToDataFrame(path_to_file)
+    numGoogle = 0
+    numTests = 0
+    numTestCases = 0
+    numQuestions = 0
+    for i in range(notes['Key'].count()):
+        if notes['Key'][i] == "google":
+            numGoogle += 1
+        elif notes['Key'][i] == "test case":
+            numTestCases += 1
+        elif notes['Key'][i] == "question":
+            numQuestions += 1
+        elif notes['Key'][i] == "success" or notes['Key'][i] == "fail" or notes['Key'][i] == "success" or "error" in notes['Key'][i]:
+            numTests += 1
+    return [numGoogle,numTests,numTestCases,numQuestions]
+
 
 def createBigCSV(path_to_directory):
     """main function that compiles all calculated features into an excel spreadsheet"""
@@ -181,12 +199,29 @@ def createBigCSV(path_to_directory):
                 info['numComments'] = totalComments
                 lenComments = lengthOfComments(path)
                 info['Comment Lengths'] = lenComments
-
-
-                if (os.path.exists("features.csv")):
-                    info.to_csv('features.csv', mode='a', index=False, header=False)
+                if (os.path.exists("keystrokeFeatures.csv")):
+                    info.to_csv('keystrokeFeatures.csv', mode='a', index=False, header=False)
                 else:
-                    info.to_csv('features.csv', index=False, header=True)
+                    info.to_csv('keystrokeFeatures.csv', index=False, header=True)
+            # if "qualcoding" in f:
+            #     infoQual = pd.DataFrame()
+            #     infoQual['Participant'] = [Id]
+            #     infoQual['Problem'] = [f]
+            #     path = path_to_directory+"/"+Id+"/" + f
+            #     [numGoogle,numTests,numTestCases,numQuestions] = qualCode(path)
+            #     infoQual['numGoogle'] = [numGoogle]
+            #     infoQual['numTests'] = [numTests]
+            #     infoQual['numTestCases'] = [numTestCases]
+            #     infoQual['numQuestions'] = [numQuestions]
+            #     if (os.path.exists("qualFeatures.csv")):
+            #         infoQual.to_csv('qualFeatures.csv', mode='a', index=False, header=False)
+            #     else:
+            #         infoQual.to_csv('qualFeatures.csv', index=False, header=True)
+                
+
+
+
+
 
 def typingToRunningTime(path_to_file):
     """min time between typing and running"""

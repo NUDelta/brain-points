@@ -1,0 +1,18 @@
+Participant,Problem,numGoogle,numTests,numTestCases,numQuestions
+Participant 1,qualcoding1.1.csv,3,6,3,4
+Participant 1,qualcoding1.2.csv,3,2,0,2
+Participant 1,qualcoding1.3.csv,3,2,2,3
+Participant 3,qualcoding3.1.csv,0,1,1,0
+Participant 3,qualcoding3.2.csv,5,2,0,0
+Participant 3,qualcoding3.3.csv,4,1,0,0
+Participant 4,qualcoding4.1.csv,0,10,7,5
+Participant 4,qualcoding4.2.csv,1,0,0,5
+Participant 4,qualcoding4.3.csv,0,7,0,5
+Participant 5,qualcoding5.1.csv,1,0,0,7
+Participant 5,qualcoding5.2.csv,1,6,0,4
+Participant 5,qualcoding5.3.csv,2,6,1,9
+Participant 6,qualcoding6.2.csv,1,3,0,2
+Participant 6,qualcoding6.3.csv,3,1,0,0
+Participant 7,qualcoding7.1.csv,3,9,1,0
+Participant 7,qualcoding7.2.csv,2,4,0,1
+Participant 7,qualcoding7.3.csv,4,2,0,1
