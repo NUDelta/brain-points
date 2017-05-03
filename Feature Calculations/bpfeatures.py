@@ -179,7 +179,7 @@ def lengthOfComments(path_to_file):
         Key = keystrokes['Key'][i]
         if Key == "#":
             flag = True
-        if Key != "backspace" and flag == True:
+        if len(Key) == 1 and flag == True:
             total +=1
         if Key == "enter":
             flag == False
