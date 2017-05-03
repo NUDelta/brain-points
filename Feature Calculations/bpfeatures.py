@@ -27,8 +27,9 @@ def csvToDataFrame(path_to_file):
     return df
 
 def timeDifference(timestamp1, timestamp2):
+    """Time difference in seconds"""
     try:
-        diff = abs((int(timestamp1)-int(timestamp2))*.001)
+        diff = abs((float(timestamp1)-float(timestamp2))*.001)
         return diff
     except:
         print("invalid")
@@ -46,11 +47,11 @@ def isEarlier(timestamp1, timestamp2):
 
 def times(path_to_file):
     """calculate the total amount of time spent overall, typing, and paused in minutes"""
-    print(path_to_file)
     keystrokes = csvToDataFrame(path_to_file)
     totalTime = 0
     timeTyping = 0
     timePaused = 0
+    maxPause = 0
     startTypingTime = keystrokes['Timestamp'][0]
     for i in range(keystrokes['Timestamp'].count()-1):
         firstTime = keystrokes['Timestamp'][i]
@@ -61,32 +62,136 @@ def times(path_to_file):
         if tempTimeDiff > 15:
             timeTyping += timeDifference(firstTime,startTypingTime)
             timePaused += timeDifference(secondTime,firstTime)
+            if maxPause < timeDifference(secondTime,firstTime):
+                maxPause = timeDifference(secondTime,firstTime)
             startTypingTime = secondTime
     totalTime = totalTime/60
     timeTyping = timeTyping/60
     timePaused = timePaused/60
-    return [totalTime,timeTyping,timePaused]
+    maxPause = maxPause/60
+    return [totalTime,timeTyping,timePaused,maxPause]
+
+def thirds(path_to_file):
+    """Amount of code typed in 1st, 2nd, and 3rd chunk of coding"""
+    keystrokes = csvToDataFrame(path_to_file)
+    # print(keystrokes['Timestamp'].count())
+    # print(float(keystrokes['Timestamp'][keystrokes['Timestamp'].count()-1])/60)
+    # print(float(keystrokes['Timestamp'][0])/60)
+    totalTime = timeDifference(keystrokes['Timestamp'][keystrokes['Timestamp'].count()-1],keystrokes['Timestamp'][0])
+    firstThird = 0
+    secondThird = 0
+    lastThird = 0
+    totalCode = 0
+    for i in range(keystrokes['Timestamp'].count()-1):
+        Key = keystrokes['Key'][i] 
+        if len(Key) == 1:
+            totalCode += 1
+            timeDiff = timeDifference(keystrokes['Timestamp'][i],keystrokes['Timestamp'][0])
+            if timeDiff < (totalTime/3):
+                firstThird += 1
+            elif timeDiff < (2*totalTime/3):
+                secondThird += 1
+            else:
+                lastThird += 1
+    return [firstThird/totalCode,secondThird/totalCode,lastThird/totalCode]
+
+def deletions(path_to_file):
+    """Find the number of flouries of deletions (now defined as three deletes within a span of 5 seconds)"""
+    # This will miss and instance where delete2,delete3,delete4 are within 5 seconds if delete1 and delete3 are outside of 5 seconds
+    keystrokes = csvToDataFrame(path_to_file)
+    flouries = 0
+    deletes = 0
+    for i in range(keystrokes['Timestamp'].count()):
+        # check if it's a delete key
+        Key = keystrokes['Key'][i]
+        if Key == "backspace":
+            timeLastDelete = keystrokes['Timestamp'][i]
+            # print(timeDifference(timeLastDelete,timeFirstDelete))
+            # check if it's the first delete key (deletes = 0)
+            if deletes == 0:
+                # keep track of that time
+                # add 1 to delete
+                timeFirstDelete = keystrokes['Timestamp'][i]
+                deletes += 1
+            # elseif see if the time is within 5 seconds
+            elif timeDifference(timeLastDelete,timeFirstDelete) <= 5:
+                # add to the number of deletes
+                deletes += 1
+            # if the time is past 5 seconds compared to the timeFirstDelete:
+            else:
+                # see if the number of deletes > 3:
+                if deletes >= 3:
+                    # add to the number of flouries
+                    flouries += 1
+                # reset timeFirstDelete to the current time
+                timeFirstDelete = keystrokes['Timestamp'][i]
+                # reset deletes to = 1
+                deletes = 1
+    return flouries
+
+def maxPausePreDeletion(path_to_file):
+    """Find the longest pause before a deletion"""
+    keystrokes = csvToDataFrame(path_to_file)
+    maxPause = 0
+    startTypingTime = keystrokes['Timestamp'][0]
+    for i in range(keystrokes['Timestamp'].count()-1):
+        prevTime = keystrokes['Timestamp'][i]
+        Key = keystrokes['Key'][i+1]
+        if Key == "backspace":
+            # find the time difference 
+            timeDiff = timeDifference(keystrokes['Timestamp'][i+1],prevTime)
+            if timeDiff > maxPause:
+                maxPause = timeDiff
+    return maxPause/60
+
 
 def createBigCSV(path_to_directory):
     """main function that compiles all calculated features into an excel spreadsheet"""
     participantIDs = getDirNames(path_to_directory)
     for Id in participantIDs:
-        keystrokeFiles = getDirNames(path_to_directory + Id)
+        keystrokeFiles = getDirNames(path_to_directory + "/" + Id)
         for f in keystrokeFiles:
-            [totalTime,timeTyping,timePaused] = times(path_to_directory+Id+"/" + f)
-            print([totalTime,timeTyping,timePaused])
-        #     break
-        # break
+            if "qualcoding" not in f:
+                info = pd.DataFrame()
+                info['Participant'] = [Id]
+                info['Problem'] = [f]
+                path = path_to_directory+"/"+Id+"/" + f
+                [totalTime,timeTyping,timePaused,maxPause] = times(path)
+                info['Total Time'] = [totalTime]
+                info['Time Typing'] = [timeTyping]
+                info['Time Paused'] = [timePaused]
+                info['Max Pause'] = [maxPause]
+                [third1,third2,third3] = thirds(path)
+                info['Code Ratio Third1'] = [third1]
+                info['Code Ratio Third2'] = [third2]
+                info['Code Ratio Third3'] = [third3]
+                deletes = deletions(path)
+                info['Deletions'] = [deletes]
+                pauseDelete = maxPausePreDeletion(path)
+                info['maxPausePreDeletion'] = [pauseDelete]
+                [minTypingtoRunningTime,aveTypingtoRunningTime] = typingToRunningTime(path)
+                info['minTypingtoRunningTime'] = minTypingtoRunningTime
+                info['aveTypingtoRunningTime'] = aveTypingtoRunningTime
+                [minRunningtoTypingTime,aveRunningtoTypingTime] = runningToTypingTime(path)
+                info['minRunningtoTypingTime'] = minRunningtoTypingTime
+                info['aveRunningtoTypingTime'] = aveRunningtoTypingTime
+                numRuns = numTimesRun(path)
+                info['numTimesRun'] = numRuns
+                totalComments = numComments(path)
+                info['numComments'] = totalComments
+                lenComments = lengthOfComments(path)
+                info['Comment Lengths'] = lenComments
 
-            # if (os.path.exists("bigFile.csv")):
-            #     labels.to_csv('bigFile.csv', mode='a', index=False, header=False)
-            # else:
-            #     labels.to_csv('bigFile.csv', index=False, header=True)
+
+                if (os.path.exists("features.csv")):
+                    info.to_csv('features.csv', mode='a', index=False, header=False)
+                else:
+                    info.to_csv('features.csv', index=False, header=True)
 
 def typingToRunningTime(path_to_file):
     """min time between typing and running"""
     keystrokes = csvToDataFrame(path_to_file)
-    minimum = 1000
+    minimum = float("inf")
     sumation = 0
     count = 0
     average=0
@@ -107,17 +212,18 @@ def typingToRunningTime(path_to_file):
     if(count == 0):
         minimum="never ran code"
     else:
-        average=summation/count
+        average=sumation/count
 
-    return ["before running", "minimum: " + str(minimum), 
-            "average: " + str(average), 
-            "count: " + str(count)]
+    # return ["before running", "minimum: " + str(minimum), 
+    #         "average: " + str(average), 
+    #         "count: " + str(count)]
+    return [minimum,average] 
 
 
 def runningToTypingTime(path_to_file):
     """min time between running and typing"""
     keystrokes = csvToDataFrame(path_to_file)
-    minimum = "N/A"
+    minimum = float("inf")
     sumation = 0
     count = 0
     average = 0
@@ -143,11 +249,12 @@ def runningToTypingTime(path_to_file):
         count= count + 1
 
     if(count == 0):
-        return"never ran code"
+        minimum = "never ran code"
 
-    return ["after running", "minimum: " + str(minimum), 
-            "average: " + str(average),
-            "count: " + str(count)]
+    # return ["after running", "minimum: " + str(minimum), 
+    #         "average: " + str(average),
+    #         "count: " + str(count)]
+    return [minimum, average]
 
 def numTimesRun(path_to_file):
     """Number of times code was run"""
@@ -187,9 +294,10 @@ def lengthOfComments(path_to_file):
     return total
 
 
-path = "Study1/Participant 6/keystrokes1.csv"
+# path = "Study1/Participant 6/keystrokes1.csv"
 
 # print typingToRunningTime(path)
-print numComments(path)
-print lengthOfComments(path)
+# print numComments(path)
+# print lengthOfComments(path)
 # print runningToTypingTime(path)
+createBigCSV("/Users/morganwalker/Desktop/Spring 2017/DTR/brain-points/Feature Calculations/Study 1")
